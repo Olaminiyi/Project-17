@@ -219,95 +219,111 @@ let's run Terraform init, plan and apply and check if our resources are created 
 ![alt text](images/17.33.png)
 
 
-# AWS Identity and Access Management
-# IaM and Roles
-- We want to pass an IAM role our EC2 instances to give them access to some specific resources, so we need to do the
-following:
-1. Create AssumeRole
-Assume Role uses Security Token Service (STS) API that returns a set of temporary security credentials that you can use to access AWS resources that you might not normally have access to. These temporary credentials consist of an access key ID, a secret access key, and a security token. Typically, you use AssumeRole within your account or for cross-account access.
+### AWS Identity and Access Management
+
+We want to pass an IAM role our EC2 instances to give them access to some specific resources, so we need to do the following:
+- Create AssumeRole: Assume Role uses `Security Token Service (STS)` `API` that returns a set of temporary security credentials that you can use to access AWS resources that you might not normally have access to. These temporary credentials consist of an `access key ID`, a `secret access key`, and a `security token`. Typically, you use `AssumeRole` within your account or for `cross-account access`.
 
 - lets create a file called roles.tf
-  - a roles is like a container that holds policy such that any resources assume that can perfom some action define by that policy
+- a roles is like a container that holds policy such that any resources assume that can perfom some action define by that policy
+
 ![alt text](images/17.34.png)
 
 
-# The next resource to create is the Launch templates for webservers
-  - to get ami; try to lauch an ubuntu server and copy the ami (free tier ami)
+### The next resource to create is the Launch templates for webservers
+
+- to get ami; try to lauch an ubuntu server and copy the ami (free tier ami)
+
 ![alt text](images/17.35.png)
 
-  - we are creating lauch template and autoscaling group in a file. we will do for 2 resources in a file
-  - create a file called asg-bastion-nginx.tf (autoscaling group and launch template for both bastion & nginx)
-    - we will create the following in the file
+- we are creating lauch template and autoscaling group in a file. we will do for 2 resources in a file
+- create a file called asg-bastion-nginx.tf (autoscaling group and launch template for both bastion & nginx)
+- we will create the following in the file
 
-        - create sns topic for all the auto scaling groups
+- create sns topic for all the auto scaling groups
+
 ![alt text](images/17.36.png)
 
-        - create notification for all the auto scaling groups
+- create notification for all the auto scaling groups
+
 ![alt text](images/17.37.png)
 
-        - create a random_shuffle resouce for terraform to pick an az and place the autoscaling group there
+- create a random_shuffle resouce for terraform to pick an az and place the autoscaling group there
+
 ![alt text](images/17.38.png)
 
-        -  create a launch template for bastion
+-  create a launch template for bastion
+
 ![alt text](images/17.39.png)
 
-        - create Autoscaling for bastion  hosts
+- create Autoscaling for bastion  hosts
+
 ![alt text](images/17.40.png)
 
-        - create a launch template for nginx
+- create a launch template for nginx
+
 ![alt text](images/17.41.png)
 
-        - create Autoscslaling group for reverse proxy nginx 
+- create Autoscslaling group for reverse proxy nginx 
+
 ![alt text](images/17.42.png)
 
-        - attach autoscaling group of nginx to external load balancer
+- attach autoscaling group of nginx to external load balancer
+
 ![alt text](images/17.43.png)
 
-  - create a file called asg-webserver.tf (autoscaling group and launch template for both tooling & wordpress)
-    - we will create the following in the file
-        - create launch template for wordpress
+create a file called asg-webserver.tf (autoscaling group and launch template for both tooling & wordpress)
+- we will create the following in the file
+- create launch template for wordpress
+
 ![alt text](images/17.44.png)
 
-        - Autoscaling for wordpress application
+- Autoscaling for wordpress application
+
 ![alt text](images/17.45.png)
 
-        - attaching autoscaling group of  wordpress application to internal loadbalancer
+- attaching autoscaling group of  wordpress application to internal loadbalancer
+
 ![alt text](images/17.46.png)
 
-        - launch template for toooling
+- launch template for toooling
+
 ![alt text](images/17.47.png)
 
-        - Autoscaling for tooling
+- Autoscaling for tooling
+
 ![alt text](images/17.48.png)
 
-        - attaching autoscaling group of tooling application to internal loadbalancer
- ![alt text](images/17.49.png)       
+- attaching autoscaling group of tooling application to internal loadbalancer
 
-  - create a file called bastion.sh
-  - create a file called nginx.sh
-  - create a file called tooling.sh
-  - create a file called wordpress.sh
+![alt text](images/17.49.png)       
 
-# output concept
+- create a file called bastion.sh
+- create a file called nginx.sh
+- create a file called tooling.sh
+- create a file called wordpress.sh
+
+### output concept
 output is a way of printing something out in terraform
 - creat a file called outputs.tf
 
-# create Elastic File system
- - create a file called efs.tf
+### create Elastic File system
+- create a file called efs.tf
 
-# creating RDS
-  - create a file called rds.tf
-
-
+### creating RDS
+- create a file called rds.tf
 
 
+> [!IMPORTANT]
+> for the creation of the resources in different region, I changed the region to us-west-2 permanently. The second error regarding the certificate, I didn't know i have to create the certificate manually first which i did later. After that, there was an error related to RDS creation, about the subnet in the availability zone not have capacity for creation of vpc and the t2 micro type database. I just interchanged the subnets of efs with rds subnets and it was resolved and created successfully.
 
-# for the creation of the resources in different region, I changed the region to us-west-2 permanently. The second error regarding the certificate, I didn't know i have to create the certificate manually first which i did later. After that, there was an error related to RDS creation, about the subnet in the availability zone not have capacity for creation of vpc and the t2 micro type database. I just interchanged the subnets of efs with rds subnets and it was resolved and created successfully.
 
-
-# use the command below to generate dependency graph
-    terraform graph -type=plan | dot -Tpng > graph.png
-    terraform graph | dot -Tpng > graph.png
-
+### use the command below to generate dependency graph
+```
+terraform graph -type=plan | dot -Tpng > graph.png
+```  
+```
+terraform graph | dot -Tpng > graph.png
+```
 
 
