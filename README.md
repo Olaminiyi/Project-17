@@ -67,89 +67,111 @@ resource "aws_subnet" "private" {
 
 ![alt text](images/17.3.png)
 
-# The next resource to create is the NAT Gateway
+***The next resource to create is the NAT Gateway**
 - created a new file called nat-gw.tf
+
 ![alt text](images/17.4.png)
 
 - created elastic ip and natgateway there
+
 ![alt text](images/17.5.png)
 
 - created a new file called internet-gw.tf
+
 ![alt text](images/17.6.png)
 
 - added environment to the var.tf and tfvars for nat.gtw tags
 
-# create route table
-  - we need to create 2 route tables 
-  - create a file called routes.tf
-  - we will create the following resources in the file
+***create route table**
+- we need to create 2 route tables 
+- create a file called routes.tf
+- we will create the following resources in the file
+- create private route table
 
-    - create private route table
 ![alt text](images/17.7.png)
 
-    - create route for the private route table and attatch a nat gateway to it
-  ![alt text](images/17.8.png)
+- create route for the private route table and attatch a nat gateway to it
 
-    - we need to creat a route also: it determine the path that traffic goes in and out of a subnet
-    - associate all private subnets to the private route table
+![alt text](images/17.8.png)
+
+We need to creat a route also: it determine the path that traffic goes in and out of a subnet. Associate all private subnets to the private route table
+
 ![alt text](images/17.9.png)
 
-    - create route table for the public subnets
+- create route table for the public subnets
+
 ![alt text](images/17.10.png)
 
-    - create route for the public route table and attach the internet gateway
+- create route for the public route table and attach the internet gateway
+
 ![alt text](images/17.11.png)
 
-    - associate all public subnets to the public route table
+- associate all public subnets to the public route table
+
 ![alt text](images/17.12.png)
+
 ![alt text](images/17.13.png)
 
-# let's run Terraform init, plan and apply and check if our resources are created without any error
+let's run Terraform init, plan and apply and check if our resources are created without any error
+
 ![alt text](images/17.50.png)
+
 ![alt text](images/17.51.png)
+
 ![alt text](images/17.52.png)
+
 ![alt text](images/17.53.png)
+
 ![alt text](images/17.54.png)
+
 ![alt text](images/17.55.png)
   
-# The next resource to create is certificate manager
-  - create a file called cert.tf
-  - we will do the create the following in the file
+### The next resource to create is certificate manager
+- create a file called cert.tf
+- we will do the create the following in the file
+- Create the certificate using a wildcard for all the domains created in olami.uk
 
-    - Create the certificate using a wildcard for all the domains created in olami.uk
 ![alt text](images/17.14.png)
 
-    - call the hosted zone
-      - NOTE: YOU MUST HAVE CREATED THIS HOSTED ZONE MANUALLY ON THE AWS CONSOLE
+- call the hosted zone
+> [!NOTE]
+> YOU MUST HAVE CREATED THIS HOSTED ZONE MANUALLY ON THE AWS CONSOLE
+
 ![alt text](images/17.15.png)
 
-    - select validation method
+- select validation method
+
 ![alt text](images/17.16.png)
 
-    - validate the certificate through DNS method
+- validate the certificate through DNS method
+
 ![alt text](images/17.17.png)
 
-    - create records for tooling
+- create records for tooling
+
 ![alt text](images/17.18.png)
 
-    - create records for wordpress
+- create records for wordpress
+
 ![alt text](images/17.19.png)
     
 
-# The next resource we need to create is the security group
-  - create a file called security.tf
-  - we will configure the following in the file
+### The next resource we need to create is the security group
+- create a file called security.tf
+- we will configure the following in the file
+- create security group for alb, to allow acess from any where for HTTP and HTTPS traffic
 
-    - create security group for alb, to allow acess from any where for HTTP and HTTPS traffic
-    ![alt text](images/17.20.png)
+![alt text](images/17.20.png)
 
-    - create security group for bastion, to allow access into the bastion host from you IP
-    ![alt text](images/17.21.png)
+- create security group for bastion, to allow access into the bastion host from you IP
 
-    - create security group for nginx reverse proxy, to allow access only from the extaernal load balancer and bastion instance
+![alt text](images/17.21.png)
+
+- create security group for nginx reverse proxy, to allow access only from the extaernal load balancer and bastion instance
+
 ![alt text](images/17.22.png)
 
-    - create security group for internal load balancer (ialb), to have acces only from nginx reverser proxy server
+- create security group for internal load balancer (ialb), to have acces only from nginx reverser proxy server
 ![alt text](images/17.23.png)
 
     - create security group for webservers, to have access only from the internal load balancer and bastion instance
