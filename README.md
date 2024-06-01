@@ -174,39 +174,48 @@ let's run Terraform init, plan and apply and check if our resources are created 
 - create security group for internal load balancer (ialb), to have acces only from nginx reverser proxy server
 ![alt text](images/17.23.png)
 
-    - create security group for webservers, to have access only from the internal load balancer and bastion instance
+- create security group for webservers, to have access only from the internal load balancer and bastion instance
+
 ![alt text](images/17.24.png)
 
-    - create security group for datalayer to alow traffic from websever on nfs and mysql port and bastiopn host on mysql port  
+- create security group for datalayer to alow traffic from websever on nfs and mysql port and bastiopn host on mysql port  
+
 ![alt text](images/17.25.png)
     
 
-# The next step is to create the Application Load balancer
-  - create a file called alb.tf
-  - we will create the following in the file 
-      
-      - create External Load balancer for reverse proxy nginx
+### The next step is to create the Application Load balancer
+- create a file called alb.tf
+- we will create the following in the file       
+- create External Load balancer for reverse proxy nginx
+
 ![alt text](images/17.26.png)
 
-      - create a target group for the external load balancer
+- create a target group for the external load balancer
+
 ![alt text](images/17.27.png)
 
-      - create a listener for the load balancer
+- create a listener for the load balancer
+
 ![alt text](images/17.28.png)
 
-      - create Internal Load Balancers for webservers
+- create Internal Load Balancers for webservers
+
 ![alt text](images/17.29.png)
 
-      - create target group  for wordpress
+- create target group  for wordpress
+
 ![alt text](images/17.30.png)
 
-      - create target group for tooling
+- create target group for tooling
+
 ![alt text](images/17.31.png)
 
-      - create a single listener for wordpress which is default
+- create a single listener for wordpress which is default
+
 ![alt text](images/17.32.png)
 
-      - create a rule to route traffic to tooling when the host header changes
+- create a rule to route traffic to tooling when the host header changes
+
 ![alt text](images/17.33.png)
 
 
