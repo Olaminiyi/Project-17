@@ -1,53 +1,121 @@
-# USING TERRAFORM IAC TOOL TO AUTOMATE AWS CLOUD SOLUTION FOR 2 COMPANY WEBSITES - CONTINUATION
 
-This is a countinuation of [Project-16](https://github.com/Olaminiyi/Project-16).
+1. VPC
+2. Subnets
+3. internet gateway
+3. Elastic IP (depend on internet gateway)
+4. Nat gateway (depend on IP, Internet gateway )
+5. Route table 
+6. Route
+7. create a certificate from certificate manager before Route table
+8. create security group before the ALB
+    - for the reverse proxy, you only specify security group for egress which is outband
+    - you can now create a aws security group rule and attached it the security groupid 
+    - we need security group rule when we want to referencing another security group group rule
+9. Application Load balancer
+10. Target Group
+11. IaM and Roles (Create AssumeRole)
+12. create Launch template (must be existing before Auto G) and
+13. Autoscaling group
+    13.1. bastion.sh
+    13.2. nginx.sh
+    13.3. tooling.sh
+    13.4. wordpress.sh
+    
+14. Elastic File system 
 
-We will continue to reference the infrastracture
 
-![alt text](<images/new image.png>)
+=============================================================================================================
 
-In this Project, we will continue creating the resources for the AWS setup. The resources to be created include:
 
-- 4 Private subnets
-- 1 Internet Gateway
-- 1 NAT Gateway
-- 1 Elastic IP
-- 2 Route tables
-- IAM roles
-- Security Groups
-- Target Group for Nginx, WordPress and Tooling
-- Certificate from AWS certificate manager
-- External Application Load Balancer and Internal Application Load Balancer.
-- Launch template for Bastion, Tooling, Nginx and WordPress
-- Auto Scaling Group (ASG) for Bastion, Tooling, Nginx and WordPress
-- Elastic Filesystem
-- Relational Database (RDS)
+# Maint.tf
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Get list of availability zones
+data "aws_availability_zones" "available" {
+state = "available"
+}
 
-### CREATE 4 PRIVATE SUBNETS AND TAGGING
+provider "aws" {
+  region = var.region
+}
 
-we've already created 2 public subnets, we are going to create 4 private subnet according to our diagram
+# Create VPC
+resource "aws_vpc" "main" {
+  cidr_block                     = var.vpc_cidr
+  enable_dns_support             = var.enable_dns_support 
+  enable_dns_hostnames           = var.enable_dns_support
 
-### Tagging
-Tags all the resources you have created so far. Explore how to use format() and count functions to automatically tag subnets with its respective number.
 
-we are going to use the `merge` and `format function` of terraform add and format tag name to our dynamically generated VPC's, it merge our variable name(already declared) with variable count that returns the number of VPC generated and use the `%s` to format how the name is placed
+tags = merge(
+   var.tags,
+    {
+      Name = format("%sVpc-%s", var.name)
+    },
+)  
+
+}
+
+# Create public subnets
+resource "aws_subnet" "public" {
+  count  = var.preferred_number_of_public_subnets == null ? length(data.aws_availability_zones.available.names) : var.preferred_number_of_public_subnets   
+  vpc_id = aws_vpc.main.id
+  cidr_block              = cidrsubnet(var.vpc_cidr, 8 , count.index)
+  map_public_ip_on_launch = true
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  
+  # proj 17
+    tags = merge(
+     var.tags,
+    {
+      Name = format("%s-PublicSubnet-%s", var.name, count.index)
+    },
+    )
+}
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+# PROJECT 17
+========================================================================================================
+# when to run terraform plan 
+    - first time of creating private subnet
+    - second time after making correction to count
+    - after adding tag
+    - after creating internet gateway
+    - after creating the route table and route (do apply too)
+    - after creating load balancer group do apply too
+    - after creating roles
+    -
+
+# order of creation
+    - private subnet and correction 
+    - added variable "preferred_number_of_private_subnets to variables
+    - added tags to both pri & public and reference in var & tfar
+    - elastic ip 
+    - Nat gateway
+    - internet gateway
+    - route table
+    - add tag to the pvc
+
+
+
+# we've already created 2 public subnets, we are going to create 4 private subnet according to our diagram
+# Tagging
+  - Tags all the resources you have created so far. Explore how to use format() and count functions to automatically tag subnets with its respective number.
+  - we are going to use the merge and format function of terraform add and format tag name to our dynamically generated VPC's, it merge our variable name(already declared) with variable count that returns the number of VPC generated and use the "%s" to format how the name is placed
 
 ![alt text](images/17.1.png)
 ![alt text](images/17.2.png)
 
-### Networking
-
-Private subnets & best practices
+# Networking
+# Private subnets & best practices
 - Create 4 private subnets keeping in mind following principles:
-- Make sure you use variables or length() function to determine the number of AZs
-- Use variables and cidrsubnet() function to allocate vpc_cidr for subnets
-- Keep variables and resources in separate files for better code structure and readability
+   - Make sure you use variables or length() function to determine the number of AZs
+   - Use variables and cidrsubnet() function to allocate vpc_cidr for subnets
+   - Keep variables and resources in separate files for better code structure and readability
   
-### creating private subnet
-we have to increase the count index of cirdr to +2 so it won't overlap. you can increase either that of publc or private.
 
-We will create 4 subnets by updating the main.tf with the following code.
-```
+# creating private subnet
+# we have to increase the count index of cirdr to +2 so it won't overlap. you can increase either that of publc or private
 resource "aws_subnet" "private" {
   count                   = var.preferred_number_of_private_subnets == null ? length(data.aws_availability_zones.available.names) : var.preferred_number_of_private_subnets
   vpc_id                  = aws_vpc.main.id
@@ -63,7 +131,6 @@ resource "aws_subnet" "private" {
   )
 
 }
-```
 
 ![alt text](images/17.3.png)
 
@@ -277,6 +344,9 @@ output is a way of printing something out in terraform
 # use the command below to generate dependency graph
     terraform graph -type=plan | dot -Tpng > graph.png
     terraform graph | dot -Tpng > graph.png
+
+
+
 
 
 
