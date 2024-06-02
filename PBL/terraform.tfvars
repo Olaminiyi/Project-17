@@ -27,6 +27,6 @@ keypair = "devops"
 
 account_no = "486356681924"
 
-master-password = "devopspblproject"
+master-password = "put your own password"
 
-master-username = "olami"
+master-username = "put your own username"
