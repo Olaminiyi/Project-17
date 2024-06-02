@@ -317,6 +317,7 @@ output is a way of printing something out in terraform
 > [!IMPORTANT]
 > for the creation of the resources in different region, I changed the region to us-west-2 permanently. The second error regarding the certificate, I didn't know i have to create the certificate manually first which i did later. After that, there was an error related to RDS creation, about the subnet in the availability zone not have capacity for creation of vpc and the t2 micro type database. I just interchanged the subnets of efs with rds subnets and it was resolved and created successfully.
 
+**This is the [link](https://github.com/Olaminiyi/Project-19) to the completed version of this Project which is Project 19**
 
 ### use the command below to generate dependency graph
 ```
@@ -325,5 +326,4 @@ terraform graph -type=plan | dot -Tpng > graph.png
 ```
 terraform graph | dot -Tpng > graph.png
 ```
-
 
